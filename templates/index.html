@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Smart Farming Assistant{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section mb-12">
+    <div class="text-center">
+        <h1 class="text-5xl font-bold text-green-800 mb-4 animate-bounce-in">
+            {% if session.get('language') == 'mr' %}
+            🌾 स्मार्ट शेती सहाय्यक
+            {% else %}
+            🌱 Smart Farming Assistant
+            {% endif %}
+        </h1>
+        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+            {% if session.get('language') == 'mr' %}
+            एआय तंत्रज्ञान वापरून पीक रोग ओळखा आणि शेतीबद्दल मार्गदर्शन मिळवा
+            {% else %}
+            Identify crop diseases and get farming guidance using AI technology
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<!-- Feature Cards -->
+<div class="grid md:grid-cols-3 gap-8 mb-12">
+    <!-- Crop Detection Card -->
+    <div class="feature-card group">
+        <div class="feature-icon-wrapper">
+            <div class="feature-icon">
+                <i class="fas fa-leaf"></i>
+            </div>
+        </div>
+        <h3 class="feature-title">
+            {% if session.get('language') == 'mr' %}पीक रोग ओळख{% else %}Crop Disease Detection{% endif %}
+        </h3>
+        <p class="feature-description">
+            {% if session.get('language') == 'mr' %}
+            फोटो अपलोड करा आणि एआयद्वारे रोग ओळखा
+            {% else %}
+            Upload photo and detect diseases using AI
+            {% endif %}
+        </p>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('crop.upload') }}" class="feature-btn">
+            {% if session.get('language') == 'mr' %}सुरू करा →{% else %}Get Started →{% endif %}
+        </a>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}" class="feature-btn">
+            {% if session.get('language') == 'mr' %}लॉगिन करा →{% else %}Login →{% endif %}
+        </a>
+        {% endif %}
+    </div>
+    
+    <!-- Chat Assistant Card -->
+    <div class="feature-card group">
+        <div class="feature-icon-wrapper">
+            <div class="feature-icon">
+                <i class="fas fa-robot"></i>
+            </div>
+        </div>
+        <h3 class="feature-title">
+            {% if session.get('language') == 'mr' %}चॅट सहाय्यक{% else %}Chat Assistant{% endif %}
+        </h3>
+        <p class="feature-description">
+            {% if session.get('language') == 'mr' %}
+            व्हॉइस सपोर्टसह शेतीबद्दल प्रश्न विचारा
+            {% else %}
+            Ask farming questions with voice support
+            {% endif %}
+        </p>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('chat.assistant') }}" class="feature-btn">
+            {% if session.get('language') == 'mr' %}चॅट करा →{% else %}Chat Now →{% endif %}
+        </a>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}" class="feature-btn">
+            {% if session.get('language') == 'mr' %}लॉगिन करा →{% else %}Login →{% endif %}
+        </a>
+        {% endif %}
+    </div>
+    
+    <!-- Dashboard Card -->
+    <div class="feature-card group">
+        <div class="feature-icon-wrapper">
+            <div class="feature-icon">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+        </div>
+        <h3 class="feature-title">
+            {% if session.get('language') == 'mr' %}डॅशबोर्ड{% else %}Dashboard{% endif %}
+        </h3>
+        <p class="feature-description">
+            {% if session.get('language') == 'mr' %}
+            तुमच्या अंदाजांचा इतिहास पहा
+            {% else %}
+            View your prediction history
+            {% endif %}
+        </p>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('dashboard.index') }}" class="feature-btn">
+            {% if session.get('language') == 'mr' %}पहा →{% else %}View →{% endif %}
+        </a>
+        {% else %}
+        <a href="{{ url_for('auth.login') }}" class="feature-btn">
+            {% if session.get('language') == 'mr' %}लॉगिन करा →{% else %}Login →{% endif %}
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Stats Section -->
+<div class="stats-grid mb-12">
+    <div class="stat-card">
+        <div class="stat-icon">🌾</div>
+        <div class="stat-value">10,000+</div>
+        <div class="stat-label">Farmers Helped</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">📸</div>
+        <div class="stat-value">50,000+</div>
+        <div class="stat-label">Images Analyzed</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-value">95%</div>
+        <div class="stat-label">Accuracy</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🌱</div>
+        <div class="stat-value">25+</div>
+        <div class="stat-label">Crops Supported</div>
+    </div>
+</div>
+
+<!-- How It Works -->
+<div class="bg-white rounded-2xl shadow-xl p-8 mb-12">
+    <h2 class="text-3xl font-bold text-center text-green-800 mb-8">
+        {% if session.get('language') == 'mr' %}हे कसे काम करते{% else %}How It Works{% endif %}
+    </h2>
+    <div class="grid md:grid-cols-3 gap-8">
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <i class="fas fa-camera text-4xl text-green-600 mb-4"></i>
+            <h3 class="font-bold text-xl mb-2">Upload Photo</h3>
+            <p class="text-gray-600">Take a photo of your crop leaf and upload it</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <i class="fas fa-brain text-4xl text-green-600 mb-4"></i>
+            <h3 class="font-bold text-xl mb-2">AI Analysis</h3>
+            <p class="text-gray-600">Our AI model analyzes the image</p>
+        </div>
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <i class="fas fa-check-circle text-4xl text-green-600 mb-4"></i>
+            <h3 class="font-bold text-xl mb-2">Get Results</h3>
+            <p class="text-gray-600">Receive disease identification and treatment plan</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        padding: 4rem 2rem;
+        border-radius: 2rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    @keyframes bounceIn {
+        0% {
+            transform: scale(0.3);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.05);
+        }
+        70% {
+            transform: scale(0.9);
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .animate-bounce-in {
+        animation: bounceIn 1s ease-out;
+    }
+
+    .feature-card {
+        background: white;
+        border-radius: 1.5rem;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #22c55e, #eab308);
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .feature-icon-wrapper {
+        background: linear-gradient(135deg, #86efac 0%, #4ade80 100%);
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover .feature-icon-wrapper {
+        transform: rotate(360deg) scale(1.1);
+        background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .feature-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #166534;
+        margin-bottom: 1rem;
+    }
+
+    .feature-description {
+        color: #4b5563;
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+    }
+
+    .feature-btn {
+        display: inline-block;
+        padding: 0.75rem 2rem;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        border-radius: 9999px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .feature-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 10px 15px -3px rgba(34, 197, 94, 0.3);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #166534;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .step-card {
+        text-align: center;
+        padding: 2rem;
+        position: relative;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        margin: 0 auto 1rem;
+    }
+</style>
+{% endblock %}

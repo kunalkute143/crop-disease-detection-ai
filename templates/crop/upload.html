@@ -1,0 +1,387 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Crop - Smart Farming Assistant{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-green-800 mb-2">
+            {% if session.get('language') == 'mr' %}🌾 पीक फोटो अपलोड करा{% else %}🌾 Upload Crop Image{% endif %}
+        </h1>
+        <p class="text-gray-600">
+            {% if session.get('language') == 'mr' %}
+            रोग ओळखण्यासाठी पिकाच्या <span class="font-bold text-red-600">रोगग्रस्त पानाचा</span> स्पष्ट फोटो अपलोड करा
+            {% else %}
+            Upload a clear photo of the <span class="font-bold text-red-600">AFFECTED/DISEASED leaf</span> for accurate disease detection
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- ⚠️ Important Warning Box -->
+    <div class="bg-yellow-50 border-l-8 border-yellow-500 rounded-xl p-5 mb-6 shadow-md">
+        <div class="flex items-start gap-4">
+            <div class="flex-shrink-0">
+                <div class="w-10 h-10 bg-yellow-500 rounded-full flex items-center justify-center">
+                    <i class="fas fa-exclamation-triangle text-white text-xl"></i>
+                </div>
+            </div>
+            <div>
+                <h4 class="font-bold text-yellow-800 text-lg mb-2">
+                    {% if session.get('language') == 'mr' %}⚠️ महत्त्वाच्या सूचना{% else %}⚠️ Important Guidelines{% endif %}
+                </h4>
+                <ul class="text-sm text-yellow-700 space-y-2">
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-times-circle text-red-500 mt-0.5"></i>
+                        <span>{% if session.get('language') == 'mr' %}<strong>निरोगी पानाचा</strong> फोटो अपलोड करू नका{% else %}Do NOT upload <strong>healthy leaf</strong> photos{% endif %}</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-check-circle text-green-500 mt-0.5"></i>
+                        <span>{% if session.get('language') == 'mr' %}<strong>रोगग्रस्त पानाचा</strong> स्पष्ट फोटो अपलोड करा{% else %}Upload <strong>diseased/affected leaf</strong> showing clear symptoms{% endif %}</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-lightbulb text-yellow-500 mt-0.5"></i>
+                        <span>{% if session.get('language') == 'mr' %}डाग, पिवळी पाने, कोमेजणे यासारखी लक्षणे फोटोमध्ये स्पष्ट दिसावीत{% else %}Show clear symptoms: spots, discoloration, wilting, or lesions{% endif %}</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <i class="fas fa-camera text-blue-500 mt-0.5"></i>
+                        <span>{% if session.get('language') == 'mr' %}चांगल्या प्रकाशात, जवळून फोटो काढा{% else %}Take photo in natural light, close-up of the affected area{% endif %}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Area -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <form method="POST" enctype="multipart/form-data" id="uploadForm">
+            <div class="upload-area" id="dropArea">
+                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">
+                    {% if session.get('language') == 'mr' %}रोगग्रस्त पानाचा फोटो येथे ड्रॅग करा{% else %}Drag & Drop Diseased Leaf Image Here{% endif %}
+                </h3>
+                <p class="text-gray-500 mb-4">
+                    {% if session.get('language') == 'mr' %}किंवा{% else %}or{% endif %}
+                </p>
+                <button type="button" onclick="document.getElementById('fileInput').click()"
+                        class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition transform hover:scale-105">
+                    <i class="fas fa-folder-open mr-2"></i>
+                    {% if session.get('language') == 'mr' %}फोटो निवडा{% else %}Browse Image{% endif %}
+                </button>
+                <input type="file" name="file" id="fileInput" accept="image/jpeg,image/jpg,image/png" class="hidden">
+                <p class="text-sm text-gray-400 mt-4">
+                    {% if session.get('language') == 'mr' %}
+                    समर्थित फॉरमॅट: PNG, JPG, JPEG (जास्तीत जास्त 5MB)
+                    {% else %}
+                    Supported formats: PNG, JPG, JPEG (Max 5MB)
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Preview -->
+            <div id="previewContainer" class="mt-6 hidden">
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">
+                    {% if session.get('language') == 'mr' %}फोटो पूर्वावलोकन{% else %}Image Preview{% endif %}
+                </h3>
+                <div class="relative">
+                    <img id="imagePreview" src="" alt="Preview" class="max-w-full max-h-96 mx-auto rounded-lg shadow-lg border-2 border-green-300">
+                    <button type="button" onclick="clearPreview()" 
+                            class="absolute top-2 right-2 bg-red-500 text-white w-8 h-8 rounded-full hover:bg-red-600 transition">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Validation Message -->
+            <div id="validationMessage" class="mt-4 hidden">
+                <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-lg">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                        <span id="validationText" class="text-red-700 text-sm"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Progress -->
+            <div id="progressContainer" class="mt-6 hidden">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="text-sm font-medium text-gray-700">
+                        {% if session.get('language') == 'mr' %}विश्लेषण करत आहे...{% else %}Analyzing...{% endif %}
+                    </span>
+                    <span class="text-sm font-medium text-gray-700" id="progressPercent">0%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="progress-bar bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-300" 
+                         style="width: 0%" id="progressBar"></div>
+                </div>
+                <p class="text-center text-gray-500 mt-3 text-sm" id="analyzingText">
+                    {% if session.get('language') == 'mr' %}
+                    कृपया प्रतीक्षा करा, एआय मॉडेल रोगाचे विश्लेषण करत आहे...
+                    {% else %}
+                    Please wait, AI model is analyzing the disease...
+                    {% endif %}
+                </p>
+            </div>
+
+            <button type="submit" id="submitBtn"
+                    class="w-full mt-6 bg-gradient-to-r from-green-600 to-green-700 text-white py-4 rounded-xl font-bold text-lg hover:from-green-700 hover:to-green-800 transform hover:scale-105 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed">
+                <i class="fas fa-search mr-2"></i>
+                {% if session.get('language') == 'mr' %}रोग ओळखा{% else %}Detect Disease{% endif %}
+            </button>
+        </form>
+    </div>
+
+    <!-- Sample Images Section -->
+    <div class="bg-blue-50 rounded-xl p-6 mb-6">
+        <h3 class="text-lg font-semibold text-blue-800 mb-3 flex items-center gap-2">
+            <i class="fas fa-images"></i>
+            {% if session.get('language') == 'mr' %}📸 योग्य फोटोची उदाहरणे{% else %}📸 Sample Correct Images{% endif %}
+        </h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="text-center">
+                <div class="w-full h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-leaf text-4xl text-green-600"></i>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">Diseased Leaf</p>
+            </div>
+            <div class="text-center">
+                <div class="w-full h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-spray-can text-4xl text-yellow-600"></i>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">Brown Spots</p>
+            </div>
+            <div class="text-center">
+                <div class="w-full h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-biohazard text-4xl text-red-600"></i>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">Lesions</p>
+            </div>
+            <div class="text-center">
+                <div class="w-full h-24 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-seedling text-4xl text-green-600"></i>
+                </div>
+                <p class="text-xs text-gray-600 mt-1">Affected Area</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips -->
+    <div class="bg-green-50 rounded-xl p-6">
+        <h3 class="text-lg font-semibold text-green-800 mb-3 flex items-center gap-2">
+            <i class="fas fa-lightbulb text-yellow-500"></i>
+            {% if session.get('language') == 'mr' %}💡 टिप्स{% else %}💡 Tips for Best Results{% endif %}
+        </h3>
+        <ul class="space-y-2 text-green-700">
+            <li class="flex items-start gap-2">
+                <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                <span>{% if session.get('language') == 'mr' %}रोगग्रस्त भागावर फोकस करा{% else %}Focus on the diseased/affected part of the leaf{% endif %}</span>
+            </li>
+            <li class="flex items-start gap-2">
+                <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                <span>{% if session.get('language') == 'mr' %}फोटो अस्पष्ट किंवा धूसर नसावा{% else %}Avoid blurry or dark photos{% endif %}</span>
+            </li>
+            <li class="flex items-start gap-2">
+                <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                <span>{% if session.get('language') == 'mr' %}नैसर्गिक प्रकाशात फोटो काढा{% else %}Take photo in natural daylight{% endif %}</span>
+            </li>
+            <li class="flex items-start gap-2">
+                <i class="fas fa-check-circle text-green-600 mt-1"></i>
+                <span>{% if session.get('language') == 'mr' %}पार्श्वभूमी स्वच्छ ठेवा{% else %}Keep background clean (preferably white/neutral){% endif %}</span>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    const dropArea = document.getElementById('dropArea');
+    const fileInput = document.getElementById('fileInput');
+    const previewContainer = document.getElementById('previewContainer');
+    const imagePreview = document.getElementById('imagePreview');
+    const progressContainer = document.getElementById('progressContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressPercent = document.getElementById('progressPercent');
+    const submitBtn = document.getElementById('submitBtn');
+    const validationMessage = document.getElementById('validationMessage');
+    const validationText = document.getElementById('validationText');
+
+    // File validation function
+    function validateFile(file) {
+        return new Promise((resolve) => {
+            // Check file type
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/JPEG', 'image/JPG', 'image/PNG'];
+            if (!allowedTypes.includes(file.type)) {
+                showValidation('❌ Only JPG, JPEG, PNG files are allowed!');
+                resolve(false);
+                return;
+            }
+
+            // Check file size (max 5MB)
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                showValidation('❌ File size too large! Maximum 5MB allowed.');
+                resolve(false);
+                return;
+            }
+
+            // Check image dimensions
+            const img = new Image();
+            img.onload = function() {
+                if (img.width < 100 || img.height < 100) {
+                    showValidation('❌ Image too small! Minimum 100x100 pixels required.');
+                    resolve(false);
+                } else if (img.width > 4000 || img.height > 4000) {
+                    showValidation('❌ Image too large! Maximum 4000x4000 pixels.');
+                    resolve(false);
+                } else {
+                    hideValidation();
+                    resolve(true);
+                }
+            };
+            img.onerror = function() {
+                showValidation('❌ Invalid image file! Please try another image.');
+                resolve(false);
+            };
+            img.src = URL.createObjectURL(file);
+        });
+    }
+
+    function showValidation(message) {
+        validationText.textContent = message;
+        validationMessage.classList.remove('hidden');
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    }
+
+    function hideValidation() {
+        validationMessage.classList.add('hidden');
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+
+    // Drag & Drop handlers
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+
+    function highlight() {
+        dropArea.classList.add('border-green-500', 'bg-green-50');
+    }
+
+    function unhighlight() {
+        dropArea.classList.remove('border-green-500', 'bg-green-50');
+    }
+
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    function handleDrop(e) {
+        const dt = e.dataTransfer;
+        const file = dt.files[0];
+        fileInput.files = dt.files;
+        previewFile(file);
+    }
+
+    fileInput.addEventListener('change', async function() {
+        if (this.files && this.files[0]) {
+            const isValid = await validateFile(this.files[0]);
+            if (isValid) {
+                previewFile(this.files[0]);
+            } else {
+                clearPreview();
+                this.value = '';
+            }
+        }
+    });
+
+    function previewFile(file) {
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                imagePreview.src = e.target.result;
+                previewContainer.classList.remove('hidden');
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function clearPreview() {
+        previewContainer.classList.add('hidden');
+        fileInput.value = '';
+        imagePreview.src = '';
+        hideValidation();
+    }
+
+    document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+        if (!fileInput.files || !fileInput.files[0]) {
+            e.preventDefault();
+            alert('{% if session.get("language") == "mr" %}कृपया रोगग्रस्त पानाचा फोटो निवडा{% else %}Please select an image of diseased leaf{% endif %}');
+            return;
+        }
+
+        const isValid = await validateFile(fileInput.files[0]);
+        if (!isValid) {
+            e.preventDefault();
+            return;
+        }
+
+        progressContainer.classList.remove('hidden');
+        submitBtn.disabled = true;
+        submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 2;
+            progressBar.style.width = progress + '%';
+            progressPercent.textContent = progress + '%';
+
+            if (progress >= 90) {
+                clearInterval(interval);
+            }
+        }, 100);
+    });
+</script>
+
+<style>
+    .upload-area {
+        border: 3px dashed #cbd5e1;
+        border-radius: 1.5rem;
+        padding: 3rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .upload-area:hover {
+        border-color: #22c55e;
+        background: #f0fdf4;
+    }
+
+    .upload-icon {
+        font-size: 5rem;
+        color: #22c55e;
+        margin-bottom: 1rem;
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .progress-bar {
+        transition: width 0.5s ease;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Farming Assistant{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <style>
+        /* Navbar animations */
+        .nav-link {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: #fbbf24;
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 80%;
+        }
+        
+        .nav-link:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Dropdown animation */
+        .dropdown-content {
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Mobile menu animation */
+        .mobile-menu-open {
+            animation: slideDown 0.3s ease;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-green-50 min-h-screen">
+    
+    <!-- Navigation Bar -->
+    <nav class="bg-gradient-to-r from-green-800 to-green-900 shadow-2xl sticky top-0 z-50">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="flex justify-between items-center py-4 md:py-5">
+                
+                <!-- Logo -->
+                <div class="flex items-center space-x-3 group cursor-pointer" onclick="window.location.href='{{ url_for('index') }}'">
+                    <div class="w-10 h-10 md:w-12 md:h-12 bg-yellow-500 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-leaf text-green-800 text-xl md:text-2xl"></i>
+                    </div>
+                    <div>
+                        <span class="text-white font-bold text-lg md:text-xl tracking-tight">Smart <span class="text-yellow-400">Farming</span></span>
+                        <p class="text-green-300 text-xs hidden sm:block">AI Powered Assistant</p>
+                    </div>
+                </div>
+                
+                <!-- Desktop Navigation Links -->
+                <div class="hidden lg:flex items-center space-x-1">
+                    <a href="{{ url_for('index') }}" class="nav-link px-4 py-2 text-white/90 hover:text-white font-medium rounded-lg transition-all {% if request.endpoint == 'index' %}active text-yellow-400{% endif %}">
+                        <i class="fas fa-home mr-2"></i> Home
+                    </a>
+                    
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('crop.upload') }}" class="nav-link px-4 py-2 text-white/90 hover:text-white font-medium rounded-lg transition-all {% if request.endpoint == 'crop.upload' %}active text-yellow-400{% endif %}">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i> Upload
+                    </a>
+                    <a href="{{ url_for('chat.assistant') }}" class="nav-link px-4 py-2 text-white/90 hover:text-white font-medium rounded-lg transition-all {% if request.endpoint == 'chat.assistant' %}active text-yellow-400{% endif %}">
+                        <i class="fas fa-robot mr-2"></i> Chat
+                    </a>
+                    <a href="{{ url_for('dashboard.index') }}" class="nav-link px-4 py-2 text-white/90 hover:text-white font-medium rounded-lg transition-all {% if request.endpoint == 'dashboard.index' %}active text-yellow-400{% endif %}">
+                        <i class="fas fa-chart-line mr-2"></i> Dashboard
+                    </a>
+                    <a href="{{ url_for('about') }}" class="nav-link px-4 py-2 text-white/90 hover:text-white font-medium rounded-lg transition-all {% if request.endpoint == 'about' %}active text-yellow-400{% endif %}">
+                        <i class="fas fa-info-circle mr-2"></i> About
+                    </a>
+                    
+                    <!-- User Dropdown -->
+                    <div class="dropdown relative ml-2">
+                        <button class="flex items-center gap-2 px-4 py-2 bg-green-700/50 rounded-xl hover:bg-green-700 transition-all">
+                            <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center">
+                                <i class="fas fa-user text-green-800 text-sm"></i>
+                            </div>
+                            <span class="text-white font-medium hidden md:inline">{{ current_user.full_name.split()[0] }}</span>
+                            <i class="fas fa-chevron-down text-white text-xs"></i>
+                        </button>
+                        <div class="dropdown-content absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-2xl overflow-hidden z-50">
+                            <a href="{{ url_for('auth.profile') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
+                                <i class="fas fa-user-circle text-green-600 w-5"></i>
+                                <span class="text-gray-700">My Profile</span>
+                            </a>
+                            <a href="{{ url_for('crop.history') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition">
+                                <i class="fas fa-history text-green-600 w-5"></i>
+                                <span class="text-gray-700">Prediction History</span>
+                            </a>
+                            <hr class="my-1">
+                            <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-3 hover:bg-red-50 transition">
+                                <i class="fas fa-sign-out-alt text-red-600 w-5"></i>
+                                <span class="text-red-600">Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="px-5 py-2 bg-yellow-500 text-green-900 font-semibold rounded-xl hover:bg-yellow-400 transition-all shadow-md">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Login
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="px-5 py-2 bg-white/10 text-white font-semibold rounded-xl hover:bg-white/20 transition-all">
+                        <i class="fas fa-user-plus mr-2"></i> Register
+                    </a>
+                    <a href="{{ url_for('about') }}" class="nav-link px-4 py-2 text-white/90 hover:text-white font-medium rounded-lg transition-all {% if request.endpoint == 'about' %}active text-yellow-400{% endif %}">
+                        <i class="fas fa-info-circle mr-2"></i> About
+                    </a>
+                    {% endif %}
+                    
+                    <!-- Language Switcher -->
+                    <div class="ml-3 flex gap-1 bg-green-700/50 p-1 rounded-xl">
+                        <a href="{{ url_for('set_language', lang='en') }}" 
+                           class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all {% if session.get('language') == 'en' %}bg-yellow-500 text-green-900{% else %}text-white/80 hover:text-white{% endif %}">
+                            EN
+                        </a>
+                        <a href="{{ url_for('set_language', lang='mr') }}" 
+                           class="px-3 py-1.5 rounded-lg text-sm font-medium transition-all {% if session.get('language') == 'mr' %}bg-yellow-500 text-green-900{% else %}text-white/80 hover:text-white{% endif %}">
+                            मराठी
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="lg:hidden text-white text-2xl focus:outline-none">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <!-- Mobile Navigation Menu -->
+            <div id="mobileMenu" class="lg:hidden hidden pb-4 space-y-2">
+                <a href="{{ url_for('index') }}" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:bg-green-700 rounded-lg transition">
+                    <i class="fas fa-home w-5"></i> Home
+                </a>
+                
+                {% if current_user.is_authenticated %}
+                <a href="{{ url_for('crop.upload') }}" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:bg-green-700 rounded-lg transition">
+                    <i class="fas fa-cloud-upload-alt w-5"></i> Upload Crop
+                </a>
+                <a href="{{ url_for('chat.assistant') }}" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:bg-green-700 rounded-lg transition">
+                    <i class="fas fa-robot w-5"></i> Chat Assistant
+                </a>
+                <a href="{{ url_for('dashboard.index') }}" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:bg-green-700 rounded-lg transition">
+                    <i class="fas fa-chart-line w-5"></i> Dashboard
+                </a>
+                <a href="{{ url_for('about') }}" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:bg-green-700 rounded-lg transition">
+                    <i class="fas fa-info-circle w-5"></i> About
+                </a>
+                <a href="{{ url_for('auth.profile') }}" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:bg-green-700 rounded-lg transition">
+                    <i class="fas fa-user-circle w-5"></i> Profile
+                </a>
+                <a href="{{ url_for('crop.history') }}" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:bg-green-700 rounded-lg transition">
+                    <i class="fas fa-history w-5"></i> History
+                </a>
+                <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-3 text-red-300 hover:bg-red-600/20 rounded-lg transition">
+                    <i class="fas fa-sign-out-alt w-5"></i> Logout
+                </a>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="flex items-center gap-3 px-4 py-3 bg-yellow-500 text-green-900 rounded-lg transition">
+                    <i class="fas fa-sign-in-alt w-5"></i> Login
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:bg-green-700 rounded-lg transition">
+                    <i class="fas fa-user-plus w-5"></i> Register
+                </a>
+                <a href="{{ url_for('about') }}" class="flex items-center gap-3 px-4 py-3 text-white/90 hover:bg-green-700 rounded-lg transition">
+                    <i class="fas fa-info-circle w-5"></i> About
+                </a>
+                {% endif %}
+                
+                <!-- Mobile Language -->
+                <div class="flex gap-2 pt-2 border-t border-green-700">
+                    <a href="{{ url_for('set_language', lang='en') }}" class="flex-1 text-center px-4 py-2 bg-green-700 rounded-lg text-white {% if session.get('language') == 'en' %}bg-yellow-500 text-green-900{% endif %}">
+                        English
+                    </a>
+                    <a href="{{ url_for('set_language', lang='mr') }}" class="flex-1 text-center px-4 py-2 bg-green-700 rounded-lg text-white {% if session.get('language') == 'mr' %}bg-yellow-500 text-green-900{% endif %}">
+                        मराठी
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Flash Messages -->
+    <div class="container mx-auto px-4 mt-6">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="animate-slideDown p-4 mb-4 rounded-xl shadow-lg border-l-4 
+                        {% if category == 'success' %}bg-green-50 border-green-500 text-green-800
+                        {% elif category == 'danger' %}bg-red-50 border-red-500 text-red-800
+                        {% elif category == 'warning' %}bg-yellow-50 border-yellow-500 text-yellow-800
+                        {% else %}bg-blue-50 border-blue-500 text-blue-800{% endif %}">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% else %}info-circle{% endif %} text-xl"></i>
+                            <span class="font-medium">{{ message }}</span>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="bg-gradient-to-r from-green-900 to-green-950 text-white py-8 mt-12">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-3 gap-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 bg-yellow-500 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-leaf text-green-800 text-xl"></i>
+                        </div>
+                        <span class="font-bold text-xl">Smart Farming</span>
+                    </div>
+                    <p class="text-green-300 text-sm leading-relaxed">
+                        AI-powered platform helping farmers detect crop diseases and improve agricultural productivity.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4 text-yellow-400">Quick Links</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{{ url_for('index') }}" class="text-green-300 hover:text-white transition flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i> Home</a></li>
+                        <li><a href="{{ url_for('about') }}" class="text-green-300 hover:text-white transition flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i> About</a></li>
+                        <li><a href="{{ url_for('crop.upload') }}" class="text-green-300 hover:text-white transition flex items-center gap-2"><i class="fas fa-chevron-right text-xs"></i> Disease Detection</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-bold text-lg mb-4 text-yellow-400">Contact</h4>
+                    <ul class="space-y-2 text-green-300">
+                        <li class="flex items-center gap-2"><i class="fas fa-envelope w-5"></i> support@smartfarming.com</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-phone w-5"></i> +91 98765 43210</li>
+                        <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt w-5"></i> Pune, Maharashtra</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-green-800 mt-8 pt-6 text-center text-green-400 text-sm">
+                <p>&copy; 2024 Smart Farming Assistant. All rights reserved. | Empowering Farmers with AI</p>
+            </div>
+        </div>
+    </footer>
+
+    <style>
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .animate-slideDown {
+            animation: slideDown 0.5s ease-out;
+        }
+    </style>
+
+    <script>
+        // Mobile menu toggle
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        
+        if (menuBtn && mobileMenu) {
+            menuBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+                mobileMenu.classList.toggle('mobile-menu-open');
+            });
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

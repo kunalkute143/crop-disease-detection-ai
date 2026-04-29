@@ -1,0 +1,688 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Smart Farming Assistant{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-green-800 mb-2">
+            {% if session.get('language') == 'mr' %}
+            🌾 तुमचे डॅशबोर्ड
+            {% else %}
+            🌾 Your Dashboard
+            {% endif %}
+        </h1>
+        <p class="text-gray-600">
+            {% if session.get('language') == 'mr' %}
+            तुमच्या पीक अंदाजांची संपूर्ण माहिती
+            {% else %}
+            Complete information about your crop predictions
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Total Predictions -->
+        <div class="stat-card bg-gradient-to-br from-blue-500 to-blue-600">
+            <div class="stat-icon">
+                <i class="fas fa-chart-bar"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.total_predictions }}</div>
+                <div class="stat-label">
+                    {% if session.get('language') == 'mr' %}एकूण अंदाज{% else %}Total Predictions{% endif %}
+                </div>
+            </div>
+            <div class="stat-trend positive">
+                <i class="fas fa-arrow-up"></i> +{{ stats.this_month }} this month
+            </div>
+        </div>
+
+        <!-- Healthy Crops -->
+        <div class="stat-card bg-gradient-to-br from-green-500 to-green-600">
+            <div class="stat-icon">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.healthy_count }}</div>
+                <div class="stat-label">
+                    {% if session.get('language') == 'mr' %}निरोगी पिके{% else %}Healthy Crops{% endif %}
+                </div>
+            </div>
+            <div class="stat-trend positive">
+                <i class="fas fa-check-circle"></i> {{ stats.healthy_percent }}% of total
+            </div>
+        </div>
+
+        <!-- Diseased Crops -->
+        <div class="stat-card bg-gradient-to-br from-yellow-500 to-yellow-600">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.diseased_count }}</div>
+                <div class="stat-label">
+                    {% if session.get('language') == 'mr' %}रोगग्रस्त पिके{% else %}Diseased Crops{% endif %}
+                </div>
+            </div>
+            <div class="stat-trend negative">
+                <i class="fas fa-exclamation-circle"></i> {{ stats.diseased_percent }}% of total
+            </div>
+        </div>
+
+        <!-- Average Confidence -->
+        <div class="stat-card bg-gradient-to-br from-purple-500 to-purple-600">
+            <div class="stat-icon">
+                <i class="fas fa-percent"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-value">{{ stats.avg_confidence }}%</div>
+                <div class="stat-label">
+                    {% if session.get('language') == 'mr' %}सरासरी विश्वास{% else %}Avg Confidence{% endif %}
+                </div>
+            </div>
+            <div class="stat-trend positive">
+                <i class="fas fa-chart-line"></i> {{ stats.last_30_days }} in 30 days
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid lg:grid-cols-2 gap-6 mb-8">
+        <!-- Weekly Activity Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>
+                    <i class="fas fa-calendar-week text-green-600 mr-2"></i>
+                    {% if session.get('language') == 'mr' %}साप्ताहिक क्रियाकलाप{% else %}Weekly Activity{% endif %}
+                </h3>
+                <span class="badge bg-green-100 text-green-800">Last 7 days</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="weeklyChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Disease Distribution Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h3>
+                    <i class="fas fa-chart-pie text-green-600 mr-2"></i>
+                    {% if session.get('language') == 'mr' %}रोग वितरण{% else %}Disease Distribution{% endif %}
+                </h3>
+                <span class="badge bg-green-100 text-green-800">Top 5</span>
+            </div>
+            <div class="chart-body">
+                <canvas id="diseaseChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Predictions -->
+    <div class="recent-predictions-card">
+        <div class="card-header">
+            <h3>
+                <i class="fas fa-history text-green-600 mr-2"></i>
+                {% if session.get('language') == 'mr' %}अलीकडील अंदाज{% else %}Recent Predictions{% endif %}
+            </h3>
+            <a href="{{ url_for('crop.history') }}" class="view-all-link">
+                {% if session.get('language') == 'mr' %}सर्व पहा{% else %}View All{% endif %}
+                <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="predictions-table">
+                <thead>
+                    <tr>
+                        <th>{% if session.get('language') == 'mr' %}फोटो{% else %}Image{% endif %}</th>
+                        <th>{% if session.get('language') == 'mr' %}रोग{% else %}Disease{% endif %}</th>
+                        <th>{% if session.get('language') == 'mr' %}विश्वास{% else %}Confidence{% endif %}</th>
+                        <th>{% if session.get('language') == 'mr' %}तारीख{% else %}Date{% endif %}</th>
+                        <th>{% if session.get('language') == 'mr' %}कृती{% else %}Action{% endif %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pred in predictions %}
+                    <tr class="prediction-row">
+                        <td>
+                            <div class="prediction-image">
+                                <img src="{{ url_for('static', filename=pred.image_path) }}" 
+                                     alt="Crop" 
+                                     class="w-16 h-16 object-cover rounded-lg"
+                                     loading="lazy">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="disease-info">
+                                <span class="disease-name">{{ pred.get_display_name() }}</span>
+                                {% if pred.is_healthy %}
+                                <span class="disease-badge healthy">Healthy</span>
+                                {% else %}
+                                <span class="disease-badge disease">Disease</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="confidence-cell">
+                                <div class="confidence-bar-container">
+                                    <div class="confidence-bar" style="width: {{ (pred.confidence * 100)|round }}%"></div>
+                                </div>
+                                <span class="confidence-value {{ pred.get_confidence_class() }}">
+                                    {{ (pred.confidence * 100)|round }}%
+                                </span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="date-info">
+                                <i class="far fa-calendar-alt text-gray-400 mr-1"></i>
+                                {{ pred.created_at.strftime('%d %b %Y') }}
+                                <br>
+                                <i class="far fa-clock text-gray-400 mr-1"></i>
+                                {{ pred.created_at.strftime('%I:%M %p') }}
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ url_for('crop.view_prediction', prediction_id=pred.id) }}" 
+                                   class="action-btn view-btn"
+                                   title="{% if session.get('language') == 'mr' %}पहा{% else %}View{% endif %}">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button onclick="deletePrediction({{ pred.id }})" 
+                                        class="action-btn delete-btn"
+                                        title="{% if session.get('language') == 'mr' %}हटवा{% else %}Delete{% endif %}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="empty-state">
+                            <div class="empty-state-content">
+                                <i class="fas fa-leaf text-6xl text-gray-300 mb-4"></i>
+                                <h4 class="text-xl font-semibold text-gray-700 mb-2">
+                                    {% if session.get('language') == 'mr' %}कोणतेही अंदाज नाहीत{% else %}No predictions yet{% endif %}
+                                </h4>
+                                <p class="text-gray-500 mb-4">
+                                    {% if session.get('language') == 'mr' %}
+                                    तुमचा पहिला पीक अंदाज मिळवण्यासाठी फोटो अपलोड करा
+                                    {% else %}
+                                    Upload a crop photo to get your first prediction
+                                    {% endif %}
+                                </p>
+                                <a href="{{ url_for('crop.upload') }}" class="upload-btn">
+                                    <i class="fas fa-cloud-upload-alt mr-2"></i>
+                                    {% if session.get('language') == 'mr' %}फोटो अपलोड करा{% else %}Upload Photo{% endif %}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-grid">
+        <div class="quick-action-card">
+            <div class="quick-action-icon bg-green-100 text-green-600">
+                <i class="fas fa-camera"></i>
+            </div>
+            <div class="quick-action-content">
+                <h4>{% if session.get('language') == 'mr' %}नवीन अंदाज{% else %}New Prediction{% endif %}</h4>
+                <p>{% if session.get('language') == 'mr' %}पीक फोटो अपलोड करा{% else %}Upload crop photo{% endif %}</p>
+            </div>
+            <a href="{{ url_for('crop.upload') }}" class="quick-action-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="quick-action-card">
+            <div class="quick-action-icon bg-blue-100 text-blue-600">
+                <i class="fas fa-robot"></i>
+            </div>
+            <div class="quick-action-content">
+                <h4>{% if session.get('language') == 'mr' %}चॅट सहाय्य{% else %}Chat Support{% endif %}</h4>
+                <p>{% if session.get('language') == 'mr' %}प्रश्न विचारा{% else %}Ask questions{% endif %}</p>
+            </div>
+            <a href="{{ url_for('chat.assistant') }}" class="quick-action-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="quick-action-card">
+            <div class="quick-action-icon bg-purple-100 text-purple-600">
+                <i class="fas fa-history"></i>
+            </div>
+            <div class="quick-action-content">
+                <h4>{% if session.get('language') == 'mr' %}संपूर्ण इतिहास{% else %}Full History{% endif %}</h4>
+                <p>{% if session.get('language') == 'mr' %}सर्व अंदाज पहा{% else %}View all predictions{% endif %}</p>
+            </div>
+            <a href="{{ url_for('crop.history') }}" class="quick-action-link">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="quick-action-card">
+            <div class="quick-action-icon bg-yellow-100 text-yellow-600">
+                <i class="fas fa-download"></i>
+            </div>
+            <div class="quick-action-content">
+                <h4>{% if session.get('language') == 'mr' %}अहवाल डाउनलोड{% else %}Download Report{% endif %}</h4>
+                <p>{% if session.get('language') == 'mr' %}पीडीएफ अहवाल{% else %}PDF report{% endif %}</p>
+            </div>
+            <a href="#" onclick="downloadReport()" class="quick-action-link">
+                <i class="fas fa-download"></i>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Weekly Activity Chart
+const weeklyCtx = document.getElementById('weeklyChart').getContext('2d');
+new Chart(weeklyCtx, {
+    type: 'line',
+    data: {
+        labels: {{ chart_data.daily.labels|tojson }},
+        datasets: [{
+            label: '{% if session.get("language") == "mr" %}अंदाज{% else %}Predictions{% endif %}',
+            data: {{ chart_data.daily.data|tojson }},
+            borderColor: '#22c55e',
+            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+            borderWidth: 3,
+            pointBackgroundColor: '#22c55e',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                padding: 12,
+                cornerRadius: 8
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                grid: {
+                    color: 'rgba(0,0,0,0.05)'
+                }
+            },
+            x: {
+                grid: {
+                    display: false
+                }
+            }
+        }
+    }
+});
+
+// Disease Distribution Chart
+const diseaseCtx = document.getElementById('diseaseChart').getContext('2d');
+new Chart(diseaseCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ chart_data.distribution.labels|tojson }},
+        datasets: [{
+            data: {{ chart_data.distribution.data|tojson }},
+            backgroundColor: [
+                '#22c55e', '#eab308', '#ef4444', '#3b82f6', '#a855f7'
+            ],
+            borderColor: '#ffffff',
+            borderWidth: 2,
+            hoverOffset: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    padding: 20,
+                    font: {
+                        size: 12
+                    }
+                }
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                titleColor: '#fff',
+                bodyColor: '#fff',
+                callbacks: {
+                    label: function(context) {
+                        const label = context.label || '';
+                        const value = context.raw || 0;
+                        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                        const percentage = ((value / total) * 100).toFixed(1);
+                        return `${label}: ${value} (${percentage}%)`;
+                    }
+                }
+            }
+        },
+        cutout: '60%'
+    }
+});
+
+// Delete prediction function
+function deletePrediction(id) {
+    if (confirm('{% if session.get("language") == "mr" %}हा अंदाज हटवायचा आहे का?{% else %}Are you sure you want to delete this prediction?{% endif %}')) {
+        fetch(`/crop/delete/${id}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
+    }
+}
+
+// Download report function
+function downloadReport() {
+    // Get predictions data safely
+    const predictions = [
+        {% for pred in predictions %}
+        {
+            id: {{ pred.id }},
+            disease_name: "{{ pred.disease_name }}",
+            confidence: {{ pred.confidence }},
+            date: "{{ pred.created_at.strftime('%Y-%m-%d') }}"
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+    
+    let csv = 'Date,Disease,Confidence\n';
+    
+    predictions.forEach(p => {
+        csv += `"${p.date}","${p.disease_name}",${(p.confidence * 100).toFixed(2)}%\n`;
+    });
+    
+    // Create download link
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'predictions_report.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+</script>
+
+<style>
+/* Stats Cards */
+.stat-card {
+    @apply rounded-2xl p-6 text-white shadow-xl relative overflow-hidden;
+    background-size: 200% 200%;
+    animation: gradientMove 8s ease infinite;
+}
+
+@keyframes gradientMove {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+.stat-icon {
+    @apply absolute top-4 right-4 text-4xl opacity-20;
+}
+
+.stat-content {
+    @apply relative z-10;
+}
+
+.stat-value {
+    @apply text-4xl font-bold mb-1;
+}
+
+.stat-label {
+    @apply text-sm opacity-90;
+}
+
+.stat-trend {
+    @apply mt-3 text-xs flex items-center;
+}
+
+.stat-trend.positive {
+    @apply text-green-200;
+}
+
+.stat-trend.negative {
+    @apply text-red-200;
+}
+
+/* Chart Cards */
+.chart-card {
+    @apply bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition-all duration-300;
+}
+
+.chart-header {
+    @apply flex justify-between items-center mb-4;
+}
+
+.chart-header h3 {
+    @apply text-lg font-semibold text-gray-800;
+}
+
+.chart-body {
+    @apply h-64;
+}
+
+/* Recent Predictions Card */
+.recent-predictions-card {
+    @apply bg-white rounded-2xl shadow-lg p-6 mb-8;
+}
+
+.card-header {
+    @apply flex justify-between items-center mb-4;
+}
+
+.card-header h3 {
+    @apply text-lg font-semibold text-gray-800;
+}
+
+.view-all-link {
+    @apply text-green-600 hover:text-green-700 font-medium flex items-center transition-colors;
+}
+
+/* Predictions Table */
+.predictions-table {
+    @apply w-full;
+}
+
+.predictions-table th {
+    @apply text-left py-3 px-4 bg-gray-50 text-gray-600 font-semibold text-sm;
+}
+
+.predictions-table td {
+    @apply py-3 px-4 border-t border-gray-100;
+}
+
+.prediction-row {
+    @apply hover:bg-gray-50 transition-colors;
+}
+
+.disease-info {
+    @apply flex flex-col;
+}
+
+.disease-name {
+    @apply font-medium text-gray-800;
+}
+
+.disease-badge {
+    @apply text-xs px-2 py-1 rounded-full inline-block w-fit mt-1;
+}
+
+.disease-badge.healthy {
+    @apply bg-green-100 text-green-700;
+}
+
+.disease-badge.disease {
+    @apply bg-yellow-100 text-yellow-700;
+}
+
+/* Confidence Bar */
+.confidence-cell {
+    @apply flex items-center space-x-2;
+}
+
+.confidence-bar-container {
+    @apply w-20 h-2 bg-gray-200 rounded-full overflow-hidden;
+}
+
+.confidence-bar {
+    @apply h-full bg-green-500 rounded-full;
+}
+
+.confidence-value {
+    @apply text-sm font-medium;
+}
+
+/* Date Info */
+.date-info {
+    @apply text-sm text-gray-600;
+    line-height: 1.6;
+}
+
+/* Action Buttons */
+.action-buttons {
+    @apply flex space-x-2;
+}
+
+.action-btn {
+    @apply w-8 h-8 rounded-full flex items-center justify-center transition-all;
+}
+
+.view-btn {
+    @apply bg-blue-100 text-blue-600 hover:bg-blue-200;
+}
+
+.delete-btn {
+    @apply bg-red-100 text-red-600 hover:bg-red-200;
+}
+
+/* Empty State */
+.empty-state {
+    @apply py-12;
+}
+
+.empty-state-content {
+    @apply text-center max-w-sm mx-auto;
+}
+
+.upload-btn {
+    @apply inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-medium hover:from-green-700 hover:to-green-800 transition-all transform hover:scale-105 shadow-lg;
+}
+
+/* Quick Actions */
+.quick-actions-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4;
+}
+
+.quick-action-card {
+    @apply bg-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-all flex items-center space-x-3;
+}
+
+.quick-action-icon {
+    @apply w-12 h-12 rounded-xl flex items-center justify-center text-xl;
+}
+
+.quick-action-content {
+    @apply flex-1;
+}
+
+.quick-action-content h4 {
+    @apply font-semibold text-gray-800 text-sm;
+}
+
+.quick-action-content p {
+    @apply text-xs text-gray-500;
+}
+
+.quick-action-link {
+    @apply w-8 h-8 rounded-full bg-gray-100 text-gray-600 flex items-center justify-center hover:bg-gray-200 transition-colors;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .predictions-table {
+        @apply text-sm;
+    }
+    
+    .confidence-bar-container {
+        @apply w-16;
+    }
+    
+    .action-buttons {
+        @apply flex-col space-x-0 space-y-1;
+    }
+    
+    .action-btn {
+        @apply w-6 h-6 text-xs;
+    }
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stat-card, .chart-card, .recent-predictions-card, .quick-action-card {
+    animation: slideIn 0.5s ease-out;
+}
+
+.stat-card:nth-child(1) { animation-delay: 0.1s; }
+.stat-card:nth-child(2) { animation-delay: 0.2s; }
+.stat-card:nth-child(3) { animation-delay: 0.3s; }
+.stat-card:nth-child(4) { animation-delay: 0.4s; }
+.chart-card:nth-child(1) { animation-delay: 0.5s; }
+.chart-card:nth-child(2) { animation-delay: 0.6s; }
+</style>
+{% endblock %}

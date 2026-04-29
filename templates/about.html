@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}About - Smart Farming Assistant{% endblock %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-green-800 mb-4">
+            {% if session.get('language') == 'mr' %}🌾 आमच्याबद्दल{% else %}🌾 About Us{% endif %}
+        </h1>
+        <div class="w-24 h-1 bg-gradient-to-r from-green-500 to-yellow-500 mx-auto rounded-full"></div>
+        <p class="text-gray-600 mt-4 max-w-2xl mx-auto">
+            {% if session.get('language') == 'mr' %}
+            एआय-आधारित शेती सहाय्यक प्रणाली - शेतकऱ्यांसाठी अचूक आणि जलद पीक रोग ओळख
+            {% else %}
+            AI-Powered Farming Assistant - Accurate and Fast Crop Disease Detection for Farmers
+            {% endif %}
+        </p>
+    </div>
+    
+    <!-- Mission Section -->
+    <div class="bg-white rounded-2xl shadow-xl overflow-hidden mb-8">
+        <div class="grid md:grid-cols-2">
+            <div class="p-8 bg-gradient-to-br from-green-600 to-green-800 text-white">
+                <h2 class="text-3xl font-bold mb-4">
+                    {% if session.get('language') == 'mr' %}🎯 आमचे ध्येय{% else %}🎯 Our Mission{% endif %}
+                </h2>
+                <p class="text-lg leading-relaxed">
+                    {% if session.get('language') == 'mr' %}
+                    शेतकऱ्यांना आधुनिक एआय तंत्रज्ञानाच्या मदतीने पीक रोग लवकर ओळखण्यास मदत करणे, योग्य उपचार सुचवणे आणि शेती उत्पादन वाढविणे हे आमचे प्रमुख ध्येय आहे.
+                    {% else %}
+                    To help farmers identify crop diseases early using modern AI technology, suggest appropriate treatments, and increase agricultural productivity.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="p-8 bg-gradient-to-br from-green-50 to-emerald-50">
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-users text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-green-800">👥 10,000+ Farmers</h3>
+                        <p class="text-sm text-gray-600">Trust our platform</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4 mb-4">
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-chart-line text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-green-800">📊 95% Accuracy</h3>
+                        <p class="text-sm text-gray-600">In disease detection</p>
+                    </div>
+                </div>
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                        <i class="fas fa-clock text-green-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-green-800">⚡ Under 10 Seconds</h3>
+                        <p class="text-sm text-gray-600">Instant results</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- What We Do -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <h2 class="text-3xl font-bold text-center text-green-800 mb-8">
+            {% if session.get('language') == 'mr' %}🔬 आम्ही काय करतो?{% else %}🔬 What We Do?{% endif %}
+        </h2>
+        <div class="grid md:grid-cols-2 gap-8">
+            <div class="flex items-start gap-4">
+                <div class="w-14 h-14 rounded-xl bg-blue-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-microchip text-blue-600 text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800 text-lg">AI Disease Detection</h3>
+                    <p class="text-gray-600 text-sm">Deep Learning CNN model trained on 5000+ images for accurate disease identification</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-4">
+                <div class="w-14 h-14 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot text-green-600 text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800 text-lg">Smart Chat Assistant</h3>
+                    <p class="text-gray-600 text-sm">Gemini AI powered chatbot for farming queries in English & Marathi</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-4">
+                <div class="w-14 h-14 rounded-xl bg-yellow-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-seedling text-yellow-600 text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800 text-lg">Treatment Plans</h3>
+                    <p class="text-gray-600 text-sm">8-10 day detailed treatment plans with organic & chemical solutions</p>
+                </div>
+            </div>
+            <div class="flex items-start gap-4">
+                <div class="w-14 h-14 rounded-xl bg-purple-100 flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-microphone-alt text-purple-600 text-2xl"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-800 text-lg">Voice Support</h3>
+                    <p class="text-gray-600 text-sm">Voice input/output for easy accessibility (English & Marathi)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How It Works -->
+    <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
+        <h2 class="text-3xl font-bold text-center text-green-800 mb-8">
+            {% if session.get('language') == 'mr' %}📋 कसे काम करते?{% else %}📋 How It Works?{% endif %}
+        </h2>
+        <div class="grid md:grid-cols-3 gap-6">
+            <div class="text-center">
+                <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl font-bold text-green-600">1</span>
+                </div>
+                <h3 class="font-bold text-gray-800">Upload Photo</h3>
+                <p class="text-sm text-gray-600">Take a clear photo of the affected crop leaf</p>
+            </div>
+            <div class="text-center">
+                <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl font-bold text-green-600">2</span>
+                </div>
+                <h3 class="font-bold text-gray-800">AI Analysis</h3>
+                <p class="text-sm text-gray-600">Our AI model analyzes the image in seconds</p>
+            </div>
+            <div class="text-center">
+                <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl font-bold text-green-600">3</span>
+                </div>
+                <h3 class="font-bold text-gray-800">Get Results</h3>
+                <p class="text-sm text-gray-600">Receive disease name and complete treatment plan</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Features Grid -->
+    <h2 class="text-3xl font-bold text-center text-green-800 mb-8">
+        {% if session.get('language') == 'mr' %}✨ आमची वैशिष्ट्ये{% else %}✨ Our Features{% endif %}
+    </h2>
+    
+    <div class="grid md:grid-cols-3 gap-6 mb-12">
+        <div class="about-card">
+            <div class="about-icon bg-blue-100 text-blue-600">
+                <i class="fas fa-microphone-alt"></i>
+            </div>
+            <h3 class="about-title">
+                {% if session.get('language') == 'mr' %}🎤 व्हॉइस सहाय्य{% else %}🎤 Voice Assistance{% endif %}
+            </h3>
+            <p class="about-text">
+                {% if session.get('language') == 'mr' %}
+                व्हॉइस कमांडद्वारे सहाय्यकाशी बोला
+                {% else %}
+                Talk to assistant using voice commands
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="about-card">
+            <div class="about-icon bg-green-100 text-green-600">
+                <i class="fas fa-brain"></i>
+            </div>
+            <h3 class="about-title">
+                {% if session.get('language') == 'mr' %}🧠 एआय अंदाज{% else %}🧠 AI Predictions{% endif %}
+            </h3>
+            <p class="about-text">
+                {% if session.get('language') == 'mr' %}
+                ९५% अचूकतेसह रोग ओळख
+                {% else %}
+                Disease detection with 95% accuracy
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="about-card">
+            <div class="about-icon bg-yellow-100 text-yellow-600">
+                <i class="fas fa-seedling"></i>
+            </div>
+            <h3 class="about-title">
+                {% if session.get('language') == 'mr' %}🌱 सेंद्रिय उपाय{% else %}🌱 Organic Solutions{% endif %}
+            </h3>
+            <p class="about-text">
+                {% if session.get('language') == 'mr' %}
+                रोगांसाठी सेंद्रिय आणि नैसर्गिक उपचार
+                {% else %}
+                Organic and natural treatments for diseases
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="about-card">
+            <div class="about-icon bg-purple-100 text-purple-600">
+                <i class="fas fa-language"></i>
+            </div>
+            <h3 class="about-title">
+                {% if session.get('language') == 'mr' %}🌐 द्विभाषी{% else %}🌐 Bilingual{% endif %}
+            </h3>
+            <p class="about-text">
+                {% if session.get('language') == 'mr' %}
+                इंग्रजी आणि मराठी भाषेत उपलब्ध
+                {% else %}
+                Available in English and Marathi
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="about-card">
+            <div class="about-icon bg-red-100 text-red-600">
+                <i class="fas fa-history"></i>
+            </div>
+            <h3 class="about-title">
+                {% if session.get('language') == 'mr' %}📜 अंदाज इतिहास{% else %}📜 Prediction History{% endif %}
+            </h3>
+            <p class="about-text">
+                {% if session.get('language') == 'mr' %}
+                सर्व अंदाजांचा इतिहास डॅशबोर्डवर पहा
+                {% else %}
+                View all predictions history on dashboard
+                {% endif %}
+            </p>
+        </div>
+        
+        <div class="about-card">
+            <div class="about-icon bg-indigo-100 text-indigo-600">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h3 class="about-title">
+                {% if session.get('language') == 'mr' %}⏰ २४/७ उपलब्ध{% else %}⏰ 24/7 Available{% endif %}
+            </h3>
+            <p class="about-text">
+                {% if session.get('language') == 'mr' %}
+                कधीही, कुठेही सेवा उपलब्ध
+                {% else %}
+                Service available anytime, anywhere
+                {% endif %}
+            </p>
+        </div>
+    </div>
+    
+    <!-- Technology Stack -->
+    <div class="bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-8 mb-12 text-white">
+        <h2 class="text-3xl font-bold text-center mb-8">
+            {% if session.get('language') == 'mr' %}🛠️ तंत्रज्ञान{% else %}🛠️ Technology{% endif %}
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+                <i class="fab fa-python text-4xl text-yellow-400 mb-2 block"></i>
+                <p class="font-semibold">Python</p>
+                <p class="text-xs text-gray-400">Backend</p>
+            </div>
+            <div>
+                <i class="fas fa-brain text-4xl text-green-400 mb-2 block"></i>
+                <p class="font-semibold">TensorFlow</p>
+                <p class="text-xs text-gray-400">ML Model</p>
+            </div>
+            <div>
+                <i class="fab fa-google text-4xl text-blue-400 mb-2 block"></i>
+                <p class="font-semibold">Gemini AI</p>
+                <p class="text-xs text-gray-400">Chatbot</p>
+            </div>
+            <div>
+                <i class="fas fa-database text-4xl text-red-400 mb-2 block"></i>
+                <p class="font-semibold">SQLite</p>
+                <p class="text-xs text-gray-400">Database</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact CTA -->
+    <div class="bg-gradient-to-r from-green-600 to-green-800 rounded-2xl p-12 text-center text-white">
+        <h2 class="text-3xl font-bold mb-4">
+            {% if session.get('language') == 'mr' %}🚀 आजच सुरू करा{% else %}🚀 Get Started Today{% endif %}
+        </h2>
+        <p class="text-xl mb-8">
+            {% if session.get('language') == 'mr' %}
+            आपल्या पिकांचे आरोग्य तपासा आणि उत्तम उत्पादन मिळवा
+            {% else %}
+            Check your crop health and get better yields
+            {% endif %}
+        </p>
+        <div class="flex flex-wrap gap-4 justify-center">
+            <a href="{{ url_for('auth.register') }}" class="bg-yellow-500 text-green-900 px-8 py-3 rounded-full font-bold text-lg hover:bg-yellow-400 transition transform hover:scale-105 inline-block">
+                {% if session.get('language') == 'mr' %}📝 विनामूल्य नोंदणी करा{% else %}📝 Register for Free{% endif %}
+            </a>
+            <a href="{{ url_for('crop.upload') }}" class="bg-white/20 backdrop-blur px-8 py-3 rounded-full font-bold text-lg hover:bg-white/30 transition transform hover:scale-105 inline-block">
+                {% if session.get('language') == 'mr' %}🌾 पीक तपासा{% else %}🌾 Check Crop{% endif %}
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .about-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        text-align: center;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .about-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .about-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        margin: 0 auto 1.5rem;
+    }
+    
+    .about-title {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #166534;
+        margin-bottom: 0.5rem;
+    }
+    
+    .about-text {
+        color: #4b5563;
+        line-height: 1.6;
+        font-size: 0.9rem;
+    }
+</style>
+{% endblock %}

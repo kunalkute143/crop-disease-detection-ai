@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block title %}Register - Smart Farming Assistant{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-12 px-4">
+    <div class="max-w-md w-full">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="inline-block p-4 bg-green-100 rounded-full mb-4">
+                <i class="fas fa-seedling text-5xl text-green-600"></i>
+            </div>
+            <h2 class="text-3xl font-bold text-green-800">
+                {% if session.get('language') == 'mr' %}नवीन खाते तयार करा{% else %}Create Account{% endif %}
+            </h2>
+            <p class="text-gray-600 mt-2">
+                {% if session.get('language') == 'mr' %}स्मार्ट फार्मिंग सुरू करा{% else %}Start your smart farming journey{% endif %}
+            </p>
+        </div>
+        
+        <!-- Register Form -->
+        <div class="bg-white rounded-2xl shadow-xl p-8">
+            <form method="POST" action="{{ url_for('auth.register') }}" class="space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-user mr-2 text-green-600"></i>
+                            {% if session.get('language') == 'mr' %}पूर्ण नाव{% else %}Full Name{% endif %}
+                        </label>
+                        <input type="text" name="full_name" required
+                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition"
+                               placeholder="e.g., John Doe">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-at mr-2 text-green-600"></i>
+                            {% if session.get('language') == 'mr' %}यूजरनेम{% else %}Username{% endif %}
+                        </label>
+                        <input type="text" name="username" required
+                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition"
+                               placeholder="e.g., john123">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">
+                        <i class="fas fa-envelope mr-2 text-green-600"></i>
+                        {% if session.get('language') == 'mr' %}ईमेल{% else %}Email{% endif %}
+                    </label>
+                    <input type="email" name="email" required
+                           class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition"
+                           placeholder="e.g., john@example.com">
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-phone mr-2 text-green-600"></i>
+                            {% if session.get('language') == 'mr' %}फोन{% else %}Phone{% endif %}
+                        </label>
+                        <input type="tel" name="phone"
+                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition"
+                               placeholder="+91 98765 43210">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-map-marker-alt mr-2 text-green-600"></i>
+                            {% if session.get('language') == 'mr' %}शेताचे स्थान{% else %}Farm Location{% endif %}
+                        </label>
+                        <input type="text" name="farm_location"
+                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition"
+                               placeholder="e.g., Pune">
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-lock mr-2 text-green-600"></i>
+                            {% if session.get('language') == 'mr' %}पासवर्ड{% else %}Password{% endif %}
+                        </label>
+                        <input type="password" name="password" id="password" required
+                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition"
+                               placeholder="••••••••">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-2">
+                            <i class="fas fa-lock mr-2 text-green-600"></i>
+                            {% if session.get('language') == 'mr' %}पासवर्ड पुन्हा{% else %}Confirm Password{% endif %}
+                        </label>
+                        <input type="password" name="confirm_password" id="confirm_password" required
+                               class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-green-500 focus:outline-none transition"
+                               placeholder="••••••••">
+                    </div>
+                </div>
+                
+                <!-- Password Strength -->
+                <div class="bg-gray-50 p-4 rounded-xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm text-gray-600">Password strength:</span>
+                        <span id="strengthText" class="text-sm font-medium">Weak</span>
+                    </div>
+                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div id="strengthBar" class="h-full w-0 bg-red-500 transition-all duration-300"></div>
+                    </div>
+                    <ul class="text-xs text-gray-500 mt-2 space-y-1">
+                        <li id="lengthCheck">✓ At least 6 characters</li>
+                        <li id="numberCheck">✓ At least one number</li>
+                        <li id="upperCheck">✓ At least one uppercase letter</li>
+                    </ul>
+                </div>
+                
+                <!-- Terms -->
+                <div class="flex items-center">
+                    <input type="checkbox" required class="w-4 h-4 text-green-600 rounded focus:ring-green-500">
+                    <span class="ml-2 text-sm text-gray-600">
+                        {% if session.get('language') == 'mr' %}
+                        मी <a href="#" class="text-green-600 hover:underline">नियम व शर्ती</a> मान्य करतो
+                        {% else %}
+                        I agree to the <a href="#" class="text-green-600 hover:underline">Terms & Conditions</a>
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-xl font-bold text-lg hover:from-green-700 hover:to-green-800 transform hover:scale-105 transition-all duration-300 shadow-lg">
+                    <i class="fas fa-user-plus mr-2"></i>
+                    {% if session.get('language') == 'mr' %}नोंदणी करा{% else %}Register{% endif %}
+                </button>
+            </form>
+            
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">
+                    {% if session.get('language') == 'mr' %}
+                    आधीच सदस्य आहात? <a href="{{ url_for('auth.login') }}" class="text-green-600 font-bold hover:text-green-800 hover:underline">लॉगिन करा</a>
+                    {% else %}
+                    Already have an account? <a href="{{ url_for('auth.login') }}" class="text-green-600 font-bold hover:text-green-800 hover:underline">Login here</a>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const password = document.getElementById('password');
+    const confirm = document.getElementById('confirm_password');
+    const strengthBar = document.getElementById('strengthBar');
+    const strengthText = document.getElementById('strengthText');
+    const lengthCheck = document.getElementById('lengthCheck');
+    const numberCheck = document.getElementById('numberCheck');
+    const upperCheck = document.getElementById('upperCheck');
+    
+    password.addEventListener('input', checkStrength);
+    
+    function checkStrength() {
+        const val = password.value;
+        let strength = 0;
+        
+        // Length check
+        if (val.length >= 6) {
+            strength += 33;
+            lengthCheck.classList.add('text-green-600');
+        } else {
+            lengthCheck.classList.remove('text-green-600');
+        }
+        
+        // Number check
+        if (/\d/.test(val)) {
+            strength += 33;
+            numberCheck.classList.add('text-green-600');
+        } else {
+            numberCheck.classList.remove('text-green-600');
+        }
+        
+        // Uppercase check
+        if (/[A-Z]/.test(val)) {
+            strength += 34;
+            upperCheck.classList.add('text-green-600');
+        } else {
+            upperCheck.classList.remove('text-green-600');
+        }
+        
+        strengthBar.style.width = strength + '%';
+        
+        if (strength <= 33) {
+            strengthBar.className = 'h-full bg-red-500';
+            strengthText.textContent = 'Weak';
+        } else if (strength <= 66) {
+            strengthBar.className = 'h-full bg-yellow-500';
+            strengthText.textContent = 'Medium';
+        } else {
+            strengthBar.className = 'h-full bg-green-500';
+            strengthText.textContent = 'Strong';
+        }
+    }
+</script>
+{% endblock %}

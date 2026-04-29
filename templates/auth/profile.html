@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Smart Farming Assistant{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <!-- Profile Header -->
+    <div class="bg-gradient-to-r from-green-600 to-green-800 rounded-t-2xl p-8 text-white">
+        <div class="flex items-center space-x-6">
+            <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center">
+                <i class="fas fa-user text-5xl text-green-600"></i>
+            </div>
+            <div>
+                <h1 class="text-3xl font-bold">{{ user.full_name }}</h1>
+                <p class="text-green-200">@{{ user.username }}</p>
+                <p class="text-sm mt-2">
+                    <i class="fas fa-calendar mr-2"></i>Member since {{ user.created_at.strftime('%B %Y') }}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Profile Content -->
+    <div class="bg-white rounded-b-2xl shadow-xl p-8">
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Personal Info -->
+            <div>
+                <h2 class="text-xl font-bold text-green-800 mb-4">
+                    <i class="fas fa-user-circle mr-2"></i>
+                    {% if session.get('language') == 'mr' %}वैयक्तिक माहिती{% else %}Personal Information{% endif %}
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <div class="w-10 text-green-600"><i class="fas fa-envelope"></i></div>
+                        <div>
+                            <p class="text-sm text-gray-600">Email</p>
+                            <p class="font-medium">{{ user.email }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <div class="w-10 text-green-600"><i class="fas fa-phone"></i></div>
+                        <div>
+                            <p class="text-sm text-gray-600">Phone</p>
+                            <p class="font-medium">{{ user.phone or 'Not provided' }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                        <div class="w-10 text-green-600"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <p class="text-sm text-gray-600">Farm Location</p>
+                            <p class="font-medium">{{ user.farm_location or 'Not provided' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats -->
+            <div>
+                <h2 class="text-xl font-bold text-green-800 mb-4">
+                    <i class="fas fa-chart-bar mr-2"></i>
+                    {% if session.get('language') == 'mr' %}आकडेवारी{% else %}Statistics{% endif %}
+                </h2>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-blue-600">{{ user.predictions|length }}</div>
+                        <div class="text-sm text-gray-600">Total Predictions</div>
+                    </div>
+                    
+                    <div class="bg-green-50 p-4 rounded-lg text-center">
+                        <div class="text-3xl font-bold text-green-600">
+                            {{ user.predictions|selectattr('disease_name', 'equalto', 'Healthy')|list|length }}
+                        </div>
+                        <div class="text-sm text-gray-600">Healthy Crops</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex space-x-4 mt-8 pt-6 border-t">
+            <a href="{{ url_for('auth.edit_profile') }}" 
+               class="flex-1 bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition text-center">
+                <i class="fas fa-edit mr-2"></i> Edit Profile
+            </a>
+            <a href="{{ url_for('crop.history') }}" 
+               class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition text-center">
+                <i class="fas fa-history mr-2"></i> View History
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
